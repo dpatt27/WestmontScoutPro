@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
+from .views import home, upload_csv
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', home, name='home'),  # Add this line
+    path('upload/', upload_csv, name='upload_csv'),
 ]
