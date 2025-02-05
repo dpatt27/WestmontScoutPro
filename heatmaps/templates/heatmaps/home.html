@@ -6,5 +6,8 @@
 <body>
     <h1>Welcome to Westmont Scout Pro</h1>
     <p>This is the home page.</p>
+    <form action="{% url 'upload_csv' %}" method="get">
+        <button type="submit">Go to Upload Page</button>
+    </form>
 </body>
 </html>
