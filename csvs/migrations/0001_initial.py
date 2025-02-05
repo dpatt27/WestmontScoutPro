@@ -12,14 +12,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Pitch',
+            name='Csv',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pitcher', models.CharField(max_length=100)),
-                ('plate_loc_height', models.FloatField()),
-                ('plate_loc_side', models.FloatField()),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
+                ('file_name', models.FileField(upload_to='csvs')),
+                ('uploaded', models.DateTimeField(auto_now_add=True)),
+                ('activated', models.BooleanField(default=False)),
             ],
         ),
     ]
