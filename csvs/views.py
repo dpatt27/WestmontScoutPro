@@ -22,12 +22,13 @@ def upload_file_view(request):
                     row = row.replace(",", " ")
                     row = row.split()
                     pitcher = row[5]
-                    plate_loc_height = row[40]
-                    plate_loc_side = row[41]
+                    platelocheight = row[45]
+                    platelocside = row[41]
+                    print(row)
                     Pitch.objects.create(
                         pitcher=pitcher,
-                        plate_loc_height=plate_loc_height,
-                        plate_loc_side=plate_loc_side,
+                        platelocheight=platelocheight,
+                        platelocside=platelocside,
                     )
             obj.activated = True
             obj.save()
