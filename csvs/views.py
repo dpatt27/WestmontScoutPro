@@ -3,6 +3,7 @@ from .forms import CsvModelForm
 from .models import Csv
 import csv
 from heatmaps.models import Pitch
+import pandas as pd
 #from django.http import HttpResponse
 # Create your views here.
 def upload_file_view(request):
@@ -11,25 +12,18 @@ def upload_file_view(request):
         form.save()
         form = CsvModelForm()
         obj = Csv.objects.get(activated=False)
-        with open(obj.file_name.path, 'r') as f:
-            reader = csv.reader(f)
-
-            for i, row in enumerate(reader):
-                if i == 0:
-                    pass
-                else:
-                    row = "".join(row)
-                    row = row.replace(",", " ")
-                    row = row.split()
-                    pitcher = row[5]
-                    platelocheight = row[45]
-                    platelocside = row[41]
-                    print(row)
-                    Pitch.objects.create(
-                        pitcher=pitcher,
-                        platelocheight=platelocheight,
-                        platelocside=platelocside,
-                    )
-            obj.activated = True
-            obj.save()
+        df = pd.read_csv(obj.file_name.path)
+        columns_to_keep = ['Pitcher', 'PlateLocHeight', 'PlateLocSide']
+        new_df = df[columns_to_keep]
+        new_df = new_df.dropna()
+        print(new_df)
+        for index, row in new_df.iterrows():
+            pitch_instance = Pitch(
+                pitcher=row['Pitcher'],
+                platelocheight=row['PlateLocHeight'],
+                platelocside=row['PlateLocSide'],
+            )
+            pitch_instance.save()
+        obj.activated = True
+        obj.save()
     return render(request, 'csvs/upload.html', {'form': form})

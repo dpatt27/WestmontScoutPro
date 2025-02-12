@@ -7,4 +7,4 @@ class Pitch(models.Model):
 
 
     def __str__(self):
-        return f"{self.plate_loc_height} {self.plate_loc_side}"
+        return f"{self.platelocheight} {self.platelocside}"
