@@ -13,13 +13,15 @@ def upload_file_view(request):
         form = CsvModelForm()
         obj = Csv.objects.get(activated=False)
         df = pd.read_csv(obj.file_name.path)
-        columns_to_keep = ['Pitcher', 'PlateLocHeight', 'PlateLocSide']
+        columns_to_keep = ['Pitcher', 'TaggedPitchType', 'RelSpeed', 'PlateLocHeight', 'PlateLocSide']
         new_df = df[columns_to_keep]
         new_df = new_df.dropna()
         print(new_df)
         for index, row in new_df.iterrows():
             pitch_instance = Pitch(
                 pitcher=row['Pitcher'],
+                pitchtype=row['TaggedPitchType'],
+                velo=row['RelSpeed'],
                 platelocheight=row['PlateLocHeight'],
                 platelocside=row['PlateLocSide'],
             )
