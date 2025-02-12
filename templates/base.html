@@ -2,23 +2,70 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
+    <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">
+    <!-- Semantic UI -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 
-    <title>uploads - {% block title %}{% endblock title %}</title>
+    <!-- Custom CSS (Optional) -->
+    <style>
+        body {
+            background: #f9f9f9;
+        }
+        .ui.menu {
+            border-radius: 0;
+            margin-bottom: 2rem;
+        }
+        .hero-section {
+            background: linear-gradient(to right, #f4f4f4, #7e0413);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            background: #333;
+            color: white;
+            text-align: center;
+        }
+    </style>
+
+    <title>{% block title %}My Cool Website{% endblock title %}</title>
 </head>
 <body>
+
+    <!-- Navbar -->
+    <div class="ui inverted menu">
+        <div class="ui container">
+            <a href="/" class="header item">My Cool Website</a>
+            <a href="#" class="item">Uploads</a>
+            <a href="#" class="item">Heatmaps</a>
+            <a href="#" class="item">Hitter Reports</a>
+        </div>
+    </div>
+
+    <!-- Hero Section (Optional, remove if not needed) -->
+    <div class="hero-section">
+        <h1>{% block hero_title %}Westmont Scout Pro{% endblock hero_title %}</h1>
+    </div>
+
+    <!-- Main Content -->
     <div class="ui container">
         {% block content %}
         {% endblock content %}
     </div>
+
 
 </body>
 </html>
