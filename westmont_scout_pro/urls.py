@@ -24,7 +24,7 @@ from heatmaps.views import heatmap_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('csvs.urls', namespace='csvs')),
-    path('heatmaps/', heatmap_view, name='heatmap-view'),
+    path('heatmaps/', include('heatmaps.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings .MEDIA_ROOT)
 
