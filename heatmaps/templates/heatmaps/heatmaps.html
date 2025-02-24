@@ -10,11 +10,18 @@ Pitcher Heatmaps
     <label for="pitcher">Select Pitcher:</label>
     <select name="pitcher" id="pitcher">
         {% for pitcher in pitchers %}
-            <option value="{{ pitcher }}">{{ pitcher }}</option>
+            <option value="{{ pitcher }}" {% if selected_pitcher == pitcher %}selected{% endif %}>{{ pitcher }}</option>
+        {% endfor %}
+    </select>
+    <label for="pitchtype">Select Pitch Type:</label>
+    <select name="pitchtype" id="pitchtype">
+        {% for pitchtype in pitchtypes %}
+            <option value="{{ pitchtype }}" {% if selected_pitchtype == pitchtype %}selected{% endif %}>{{ pitchtype }}</option>
         {% endfor %}
     </select>
     <button type="submit">Filter</button>
 </form>
-<img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
+{% if heatmap %}
+    <img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
+{% endif %}
 {% endblock content %}
-
