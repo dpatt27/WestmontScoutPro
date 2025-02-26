@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 import sqlite3
 import seaborn as sns
 import pandas as pd
@@ -9,6 +10,9 @@ import matplotlib.patches as patches
 import io
 import base64
 from django.conf import settings
+
+def home_view(request):
+    return render(request, 'home.html')
 
 def generate_heatmap(pitcher=None, pitchtype=None):
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
@@ -30,7 +34,7 @@ def generate_heatmap(pitcher=None, pitchtype=None):
         x=new_df['platelocside'],
         y=new_df['platelocheight'],
         cmap="coolwarm",
-        thresh=0.1,
+        thresh=0.1,  # Adjust the threshold to increase the limit on frequency
         fill=True,
         bw_adjust=0.5
     )
@@ -46,7 +50,7 @@ def generate_heatmap(pitcher=None, pitchtype=None):
     plt.xlabel('PlateLocSide')
     plt.ylabel('PlateLocHeight')
     plt.xlim(-2.21, 2.21)  # Set x-axis limits
-    plt.ylim(0.5, 4.5)
+    plt.ylim(0.5, 4.5)     # Set y-axis limits
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
@@ -54,7 +58,7 @@ def generate_heatmap(pitcher=None, pitchtype=None):
     image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
     buf.close()
     plt.clf()  # Clear the current figure
-    plt.close()
+    plt.close()  # Close the figure to free memory
     return image_base64
 
 def heatmap_view(request):
@@ -64,10 +68,16 @@ def heatmap_view(request):
 
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
     pitchers_df = pd.read_sql_query("SELECT DISTINCT pitcher FROM heatmaps_pitch", conn)
-    pitchtypes_df = pd.read_sql_query("SELECT DISTINCT pitchtype FROM heatmaps_pitch", conn)
     conn.close()
     pitchers = pitchers_df['pitcher'].tolist()
-    pitchtypes = pitchtypes_df['pitchtype'].tolist()
+
+    # Fetch pitch types for the selected pitcher
+    pitchtypes = []
+    if pitcher:
+        conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
+        pitchtypes_df = pd.read_sql_query(f"SELECT DISTINCT pitchtype FROM heatmaps_pitch WHERE pitcher = '{pitcher}'", conn)
+        conn.close()
+        pitchtypes = pitchtypes_df['pitchtype'].tolist()
 
     return render(request, 'heatmaps/heatmaps.html', {
         'heatmap': heatmap,
@@ -76,3 +86,13 @@ def heatmap_view(request):
         'selected_pitcher': pitcher,
         'selected_pitchtype': pitch_type
     })
+
+def get_pitchtypes(request):
+    pitcher = request.GET.get('pitcher')
+    pitchtypes = []
+    if pitcher:
+        conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
+        pitchtypes_df = pd.read_sql_query(f"SELECT DISTINCT pitchtype FROM heatmaps_pitch WHERE pitcher = '{pitcher}'", conn)
+        conn.close()
+        pitchtypes = pitchtypes_df['pitchtype'].tolist()
+    return JsonResponse({'pitchtypes': pitchtypes})

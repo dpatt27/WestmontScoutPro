@@ -8,13 +8,15 @@ Pitcher Heatmaps
 <h1>Heatmap</h1>
 <form method="GET" action="{% url 'heatmap_view' %}">
     <label for="pitcher">Select Pitcher:</label>
-    <select name="pitcher" id="pitcher">
+    <select name="pitcher" id="pitcher" onchange="updatePitchTypes()">
+        <option value="">Select a pitcher</option>
         {% for pitcher in pitchers %}
             <option value="{{ pitcher }}" {% if selected_pitcher == pitcher %}selected{% endif %}>{{ pitcher }}</option>
         {% endfor %}
     </select>
     <label for="pitchtype">Select Pitch Type:</label>
     <select name="pitchtype" id="pitchtype">
+        <option value="">Select a pitch type</option>
         {% for pitchtype in pitchtypes %}
             <option value="{{ pitchtype }}" {% if selected_pitchtype == pitchtype %}selected{% endif %}>{{ pitchtype }}</option>
         {% endfor %}
@@ -24,4 +26,28 @@ Pitcher Heatmaps
 {% if heatmap %}
     <img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
 {% endif %}
+
+<script>
+    function updatePitchTypes() {
+        var pitcher = document.getElementById("pitcher").value;
+        var pitchtypeSelect = document.getElementById("pitchtype");
+
+        // Clear the existing options
+        pitchtypeSelect.innerHTML = '<option value="">Select a pitch type</option>';
+
+        if (pitcher) {
+            fetch(`/get_pitchtypes/?pitcher=${pitcher}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.pitchtypes.forEach(function(pitchtype) {
+                        var option = document.createElement("option");
+                        option.value = pitchtype;
+                        option.text = pitchtype;
+                        pitchtypeSelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+</script>
 {% endblock content %}
