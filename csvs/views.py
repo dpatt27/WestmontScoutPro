@@ -16,6 +16,7 @@ def upload_file_view(request):
             df = pd.read_csv(obj.file_name.path)
             columns_to_keep = ['Pitcher', 'TaggedPitchType', 'RelSpeed', 'PlateLocHeight', 'PlateLocSide', 'PitchCall', 'ExitSpeed']
             new_df = df[columns_to_keep]
+            new_df['ExitSpeed'] = new_df['ExitSpeed'].fillna(0)
             new_df = new_df.dropna()
             print(new_df)
             for index, row in new_df.iterrows():

@@ -14,7 +14,7 @@ from django.conf import settings
 def home_view(request):
     return render(request, 'home.html')
 
-def generate_heatmap(pitcher=None, pitchtype=None):
+def generate_heatmap(pitcher=None, pitchtype=None, heatmapType='location'):
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
     query = "SELECT * FROM heatmaps_pitch"
     conditions = []
@@ -27,17 +27,28 @@ def generate_heatmap(pitcher=None, pitchtype=None):
     df = pd.read_sql_query(query, conn)
     conn.close()
 
-    columns_to_keep = ['pitcher', 'platelocheight', 'platelocside']
+    columns_to_keep = ['pitcher', 'platelocheight', 'platelocside', 'exitspeed']
     new_df = df[columns_to_keep].dropna()
 
-    sns.kdeplot(
-        x=new_df['platelocside'],
-        y=new_df['platelocheight'],
-        cmap="coolwarm",
-        thresh=0.1,  # Adjust the threshold to increase the limit on frequency
-        fill=True,
-        bw_adjust=0.5
-    )
+    plt.figure(figsize=(10, 8))
+    if heatmapType == 'exitVelo':
+        sns.kdeplot(
+            x=new_df['platelocside'],
+            y=new_df['platelocheight'],
+            weights=new_df['exitspeed'],
+            cmap="coolwarm",
+            fill=True,
+            bw_adjust=0.5
+        )
+    else:
+        sns.kdeplot(
+            x=new_df['platelocside'],
+            y=new_df['platelocheight'],
+            cmap="coolwarm",
+            thresh=0.1,
+            fill=True,
+            bw_adjust=0.5
+        )
 
     rect = patches.Rectangle((-0.71, 1.5), 1.42, 2, linewidth=1, edgecolor='black', facecolor='none')
     plt.gca().add_patch(rect)
@@ -49,29 +60,29 @@ def generate_heatmap(pitcher=None, pitchtype=None):
     plt.title(title)
     plt.xlabel('PlateLocSide')
     plt.ylabel('PlateLocHeight')
-    plt.xlim(-2.21, 2.21)  # Set x-axis limits
-    plt.ylim(0.5, 4.5)     # Set y-axis limits
+    plt.xlim(-2.21, 2.21)
+    plt.ylim(0.5, 4.5)
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
     image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
     buf.close()
-    plt.clf()  # Clear the current figure
-    plt.close()  # Close the figure to free memory
+    plt.clf()
+    plt.close()
     return image_base64
 
 def heatmap_view(request):
     pitcher = request.GET.get('pitcher')
     pitch_type = request.GET.get('pitchtype')
-    heatmap = generate_heatmap(pitcher, pitch_type)
+    heatmap_type = request.GET.get('heatmapType', 'location')
+    heatmap = generate_heatmap(pitcher, pitch_type, heatmap_type)
 
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
     pitchers_df = pd.read_sql_query("SELECT DISTINCT pitcher FROM heatmaps_pitch", conn)
     conn.close()
     pitchers = pitchers_df['pitcher'].tolist()
 
-    # Fetch pitch types for the selected pitcher
     pitchtypes = []
     if pitcher:
         conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
@@ -84,7 +95,8 @@ def heatmap_view(request):
         'pitchers': pitchers,
         'pitchtypes': pitchtypes,
         'selected_pitcher': pitcher,
-        'selected_pitchtype': pitch_type
+        'selected_pitchtype': pitch_type,
+        'selected_heatmapType': heatmap_type
     })
 
 def get_pitchtypes(request):
