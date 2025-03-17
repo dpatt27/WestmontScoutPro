@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Hitter Reports
+{% endblock title %}
+
+{% block content %}
+<h1>Hitter Reports</h1>
+<form method="GET" action="{% url 'hitters_view' %}">
+    <label for="batter">Select Batter:</label>
+    <select name="batter" id="batter">
+        <option value="">Select a batter</option>
+        {% for batter in batters %}
+            <option value="{{ batter }}" {% if selected_batter == batter %}selected{% endif %}>{{ batter }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Generate Report</button>
+</form>
+{% if max_exit_velo %}
+    <h2>Max Exit Velocity: {{ max_exit_velo }} mph</h2>
+{% endif %}
+{% if pitches_plot %}
+    <img src="data:image/png;base64,{{ pitches_plot }}" alt="Pitches Plot">
+{% endif %}
+{% endblock content %}

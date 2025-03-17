@@ -14,7 +14,7 @@ def upload_file_view(request):
         obj = Csv.objects.filter(activated=False).first()  # Updated this line
         if obj:  # Check if obj is not None
             df = pd.read_csv(obj.file_name.path)
-            columns_to_keep = ['Pitcher', 'TaggedPitchType', 'RelSpeed', 'PlateLocHeight', 'PlateLocSide', 'PitchCall', 'ExitSpeed']
+            columns_to_keep = ['Pitcher', 'TaggedPitchType', 'RelSpeed', 'PlateLocHeight', 'PlateLocSide', 'PitchCall', 'ExitSpeed', 'Batter', 'BatterTeam']
             new_df = df[columns_to_keep]
             new_df['ExitSpeed'] = new_df['ExitSpeed'].fillna(0)
             new_df = new_df.dropna()
@@ -27,7 +27,9 @@ def upload_file_view(request):
                     platelocheight=row['PlateLocHeight'],
                     platelocside=row['PlateLocSide'],
                     pitchcall=row['PitchCall'],
-                    exitspeed=row['ExitSpeed']
+                    exitspeed=row['ExitSpeed'],
+                    batter=row['Batter'],
+                    batter_team=row['BatterTeam']
                 )
                 pitch_instance.save()
             obj.activated = True
