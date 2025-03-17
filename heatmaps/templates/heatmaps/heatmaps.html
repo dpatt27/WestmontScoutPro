@@ -14,9 +14,14 @@ Pitcher Heatmaps
             <option value="{{ pitcher }}" {% if selected_pitcher == pitcher %}selected{% endif %}>{{ pitcher }}</option>
         {% endfor %}
     </select>
+    <label for="heatmapType">Heatmap Type:</label>
+    <select name="heatmapType" id="heatmapType">
+        <option value="location" {% if selected_heatmapType == 'location' %}selected{% endif %}>Pitch Location</option>
+        <option value="exitVelo" {% if selected_heatmapType == 'exitVelo' %}selected{% endif %}>Exit Velocity</option>
+    </select>
     <label for="pitchtype">Select Pitch Type:</label>
     <select name="pitchtype" id="pitchtype">
-        <option value="">Select a pitch type</option>
+        <option value="">All</option>
         {% for pitchtype in pitchtypes %}
             <option value="{{ pitchtype }}" {% if selected_pitchtype == pitchtype %}selected{% endif %}>{{ pitchtype }}</option>
         {% endfor %}
@@ -33,7 +38,7 @@ Pitcher Heatmaps
         var pitchtypeSelect = document.getElementById("pitchtype");
 
         // Clear the existing options
-        pitchtypeSelect.innerHTML = '<option value="">Select a pitch type</option>';
+        pitchtypeSelect.innerHTML = '<option value="">All</option>';
 
         if (pitcher) {
             fetch(`/get_pitchtypes/?pitcher=${pitcher}`)

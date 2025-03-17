@@ -20,11 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from heatmaps.views import home_view
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home_view, name='home'),  # Root URL points to the home view
+    path('', include('heatmaps.urls')),  # Includes the URLs from the heatmaps app
     path('upload/', include('csvs.urls', namespace='csvs')),
-    path('heatmaps/', include('heatmaps.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings .MEDIA_ROOT)
 
