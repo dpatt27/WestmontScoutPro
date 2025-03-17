@@ -109,62 +109,92 @@ def get_pitchtypes(request):
         pitchtypes = pitchtypes_df['pitchtype'].tolist()
     return JsonResponse({'pitchtypes': pitchtypes})
 
+
 def generate_pitches_plot(batter):
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
-    query = f"SELECT * FROM heatmaps_pitch WHERE batter = '{batter}'"
-    df = pd.read_sql_query(query, conn)
+
+    # Parameterized query to prevent SQL injection
+    query = "SELECT platelocside, platelocheight, pitchtype FROM heatmaps_pitch WHERE batter = ?"
+    df = pd.read_sql_query(query, conn, params=(batter,))
     conn.close()
 
+    # Create figure
     plt.figure(figsize=(10, 8))
+
+    # Improved scatter plot
     sns.scatterplot(
         x=df['platelocside'],
         y=df['platelocheight'],
         hue=df['pitchtype'],
-        palette='viridis',
-        s=100,
-        edgecolor='w',
-        alpha=0.7
+        palette="tab10",  # Use a better color scheme
+        s=120,  # Increase size for visibility
+        edgecolor='black',
+        alpha=0.75  # Better opacity for visibility
     )
-    rect = patches.Rectangle((-0.71, 1.5), 1.42, 2, linewidth=1, edgecolor='black', facecolor='none')
-    plt.gca().add_patch(rect)
-    plt.xlim(-2.21, 2.21)
-    plt.ylim(0.5, 4.5)
-    plt.title(f'Pitches Seen by {batter}')
-    plt.xlabel('Plate Location Side')
-    plt.ylabel('Plate Location Height')
-    plt.legend(title='Pitch Type')
 
+    # Strike zone (adjusted to better proportions)
+    strike_zone = patches.Rectangle(
+        (-0.85, 1.5), 1.7, 2.0,
+        linewidth=2, edgecolor='black', facecolor='none', linestyle='dashed'
+    )
+    plt.gca().add_patch(strike_zone)
+
+    # Adjust limits for better framing
+    plt.xlim(-2.2, 2.2)
+    plt.ylim(0.5, 4.5)
+
+    # Better titles and labels
+    plt.title(f'Pitch Locations for {batter}', fontsize=14, fontweight='bold')
+    plt.xlabel('Plate Location Side', fontsize=12)
+    plt.ylabel('Plate Location Height', fontsize=12)
+    plt.legend(title='Pitch Type', fontsize=10)
+
+    # Save plot as a Base64 image
     buf = io.BytesIO()
-    plt.savefig(buf, format='png')
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=150)  # High DPI for clarity
     buf.seek(0)
     image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
     buf.close()
-    plt.clf()
-    plt.close()
+    plt.close()  # Close plot to prevent memory issues
+
     return image_base64
+
 
 def hitters_view(request):
     batter = request.GET.get('batter')
+    team = request.GET.get('team')
 
     max_exit_velo = None
     pitches_plot = None
 
     if batter:
         conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
-        query = f"SELECT MAX(exitspeed) as max_exit_velo FROM heatmaps_pitch WHERE batter = '{batter}'"
-        max_exit_velo = pd.read_sql_query(query, conn)['max_exit_velo'].iloc[0]
+        query = "SELECT MAX(exitspeed) as max_exit_velo FROM heatmaps_pitch WHERE batter = ?"
+        max_exit_velo = pd.read_sql_query(query, conn, params=(batter,))['max_exit_velo'].iloc[0]
         conn.close()
-
         pitches_plot = generate_pitches_plot(batter)
 
     conn = sqlite3.connect(settings.BASE_DIR / 'db.sqlite3')
-    batters_df = pd.read_sql_query("SELECT DISTINCT batter FROM heatmaps_pitch", conn)
+    batters_query = "SELECT DISTINCT batter FROM heatmaps_pitch"
+    teams_query = "SELECT DISTINCT batter_team FROM heatmaps_pitch"
+
+    if team:
+        batters_query += " WHERE batter_team = ?"
+        batters_df = pd.read_sql_query(batters_query, conn, params=(team,))
+    else:
+        batters_df = pd.read_sql_query(batters_query, conn)
+
+    teams_df = pd.read_sql_query(teams_query, conn)
     conn.close()
+
     batters = batters_df['batter'].tolist()
+    teams = teams_df['batter_team'].tolist()
 
     return render(request, 'heatmaps/hitters.html', {
         'batters': batters,
         'selected_batter': batter,
         'max_exit_velo': max_exit_velo,
-        'pitches_plot': pitches_plot
+        'pitches_plot': pitches_plot,
+        'teams': teams,
+        'selected_team': team
     })
