@@ -27,7 +27,7 @@ def generate_heatmap(pitcher=None, pitchtype=None, heatmapType='location'):
     df = pd.read_sql_query(query, conn)
     conn.close()
 
-    columns_to_keep = ['pitcher', 'platelocheight', 'platelocside', 'exitspeed']
+    columns_to_keep = ['pitcher', 'platelocheight', 'platelocside', 'exitspeed', 'pitchcall']
     new_df = df[columns_to_keep].dropna()
 
     plt.figure(figsize=(10, 8))
@@ -36,6 +36,15 @@ def generate_heatmap(pitcher=None, pitchtype=None, heatmapType='location'):
             x=new_df['platelocside'],
             y=new_df['platelocheight'],
             weights=new_df['exitspeed'],
+            cmap="coolwarm",
+            fill=True,
+            bw_adjust=0.5
+        )
+    elif heatmapType == 'whiffs':
+        whiffs_df = new_df[new_df['pitchcall'] == 'StrikeSwinging']
+        sns.kdeplot(
+            x=whiffs_df['platelocside'],
+            y=whiffs_df['platelocheight'],
             cmap="coolwarm",
             fill=True,
             bw_adjust=0.5
@@ -57,6 +66,8 @@ def generate_heatmap(pitcher=None, pitchtype=None, heatmapType='location'):
         title += f' {pitcher}'
     if pitchtype:
         title += f' ({pitchtype})'
+    if heatmapType == 'whiffs':
+        title += ' (Whiffs)'
     plt.title(title)
     plt.xlabel('PlateLocSide')
     plt.ylabel('PlateLocHeight')
@@ -98,7 +109,6 @@ def heatmap_view(request):
         'selected_pitchtype': pitch_type,
         'selected_heatmapType': heatmap_type
     })
-
 def get_pitchtypes(request):
     pitcher = request.GET.get('pitcher')
     pitchtypes = []
