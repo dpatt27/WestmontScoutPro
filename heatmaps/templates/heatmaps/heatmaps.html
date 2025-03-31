@@ -1,58 +1,38 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Pitcher Heatmaps
-{% endblock title %}
+{% block title %}Heatmaps{% endblock title %}
 
 {% block content %}
-<h1>Heatmap</h1>
-<form method="GET" action="{% url 'heatmap_view' %}">
-    <label for="pitcher">Select Pitcher:</label>
-    <select name="pitcher" id="pitcher" onchange="updatePitchTypes()">
-        <option value="">Select a pitcher</option>
+<h1>Pitcher Heatmaps</h1>
+
+<form method="GET" class="mb-4">
+    <label for="pitcher">Select a Pitcher:</label>
+    <select name="pitcher" id="pitcher" class="form-select">
+        <option value="">All Pitchers</option>
         {% for pitcher in pitchers %}
-            <option value="{{ pitcher }}" {% if selected_pitcher == pitcher %}selected{% endif %}>{{ pitcher }}</option>
+        <option value="{{ pitcher }}" {% if pitcher == selected_pitcher %}selected{% endif %}>{{ pitcher }}</option>
         {% endfor %}
     </select>
-    <label for="heatmapType">Heatmap Type:</label>
-    <select name="heatmapType" id="heatmapType">
-        <option value="location" {% if selected_heatmapType == 'location' %}selected{% endif %}>Pitch Location</option>
-        <option value="exitVelo" {% if selected_heatmapType == 'exitVelo' %}selected{% endif %}>Exit Velocity</option>
-    </select>
-    <label for="pitchtype">Select Pitch Type:</label>
-    <select name="pitchtype" id="pitchtype">
-        <option value="">All</option>
+
+    <label for="pitchtype">Select a Pitch Type:</label>
+    <select name="pitchtype" id="pitchtype" class="form-select">
+        <option value="">All Pitch Types</option>
         {% for pitchtype in pitchtypes %}
-            <option value="{{ pitchtype }}" {% if selected_pitchtype == pitchtype %}selected{% endif %}>{{ pitchtype }}</option>
+        <option value="{{ pitchtype }}" {% if pitchtype == selected_pitchtype %}selected{% endif %}>{{ pitchtype }}</option>
         {% endfor %}
     </select>
-    <button type="submit">Filter</button>
+
+    <label for="heatmapType">Select Heatmap Type:</label>
+    <select name="heatmapType" id="heatmapType" class="form-select">
+        <option value="location" {% if selected_heatmapType == 'location' %}selected{% endif %}>Location</option>
+        <option value="exitVelo" {% if selected_heatmapType == 'exitVelo' %}selected{% endif %}>Exit Velocity</option>
+        <option value="whiffs" {% if selected_heatmapType == 'whiffs' %}selected{% endif %}>Whiffs</option>
+    </select>
+
+    <button type="submit" class="btn btn-secondary mt-2">Generate Report</button>
 </form>
+
 {% if heatmap %}
-    <img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
+<img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
 {% endif %}
-
-<script>
-    function updatePitchTypes() {
-        var pitcher = document.getElementById("pitcher").value;
-        var pitchtypeSelect = document.getElementById("pitchtype");
-
-        // Clear the existing options
-        pitchtypeSelect.innerHTML = '<option value="">All</option>';
-
-        if (pitcher) {
-            fetch(`/get_pitchtypes/?pitcher=${pitcher}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.pitchtypes.forEach(function(pitchtype) {
-                        var option = document.createElement("option");
-                        option.value = pitchtype;
-                        option.text = pitchtype;
-                        pitchtypeSelect.add(option);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    }
-</script>
 {% endblock content %}

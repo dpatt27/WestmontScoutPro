@@ -3,7 +3,7 @@
 {% block title %}Hitter Report{% endblock title %}
 
 {% block content %}
-<h1>Hitter Report</h1>
+    <h1>Hitter Report</h1>
 
 <form method="GET" class="mb-4">
     <label for="team">Select a Team:</label>
@@ -27,8 +27,19 @@
     <button type="submit" class="btn btn-secondary mt-2">Generate Report</button>
 </form>
 
-{% if selected_batter %}
-<h2>Max Exit Velocity: {{ max_exit_velo }} mph</h2>
-<img src="data:image/png;base64,{{ pitches_plot }}" alt="Pitches Plot">
-{% endif %}
+    {% if selected_batter %}
+        <!-- Summary Statistics -->
+        <div class="card mb-4">
+            <div class="card-body">
+                {{ summary|safe }}
+            </div>
+        </div>
+
+        <!-- Pitch Locations -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <img src="data:image/png;base64,{{ pitches_plot }}" alt="Pitches Plot" class="img-fluid">
+            </div>
+        </div>
+    {% endif %}
 {% endblock content %}
