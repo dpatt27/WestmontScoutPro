@@ -3,7 +3,7 @@
 {% block title %}Heatmaps{% endblock title %}
 
 {% block content %}
-<h1>Heatmap Generator</h1>
+<h1>Pitcher Heatmaps</h1>
 
 <form method="GET" class="mb-4">
     <label for="pitcher">Select a Pitcher:</label>
@@ -33,7 +33,6 @@
 </form>
 
 {% if heatmap %}
-<h3>Heatmap</h3>
 <img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap">
 {% endif %}
 {% endblock content %}
