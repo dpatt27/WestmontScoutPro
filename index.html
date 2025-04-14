@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Code Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Restricted Access</h1>
+  <p>Please enter the access code to continue:</p>
+  <input type="password" id="accessCode" placeholder="Enter Access Code" />
+  <button onclick="checkAccessCode()">Submit</button>
+  <p id="errorMessage" class="error"></p>
+
+  <script>
+    // Define the correct access code
+    const correctAccessCode = "12345";
+
+    function checkAccessCode() {
+      const userInput = document.getElementById("accessCode").value;
+      const errorMessage = document.getElementById("errorMessage");
+
+      if (userInput === correctAccessCode) {
+        // Redirect to the main site or unlock content
+        window.location.href = "home.html"; // Replace with your main site URL or page
+      } else {
+        // Display error message
+        errorMessage.textContent = "Invalid access code. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>
