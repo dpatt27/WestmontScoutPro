@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-*hspc(m#2+$8-una8m*pihk)$$m2a&)b)o2&la@(x&+emwg!_i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['your-app-name.herokuapp.com']
+ALLOWED_HOSTS = ['westmontscoutpro.herokuapp.com']
 
 
 # Application definition
