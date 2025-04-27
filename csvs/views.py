@@ -9,8 +9,8 @@ import pandas as pd
 def upload_file_view(request):
     form = CsvModelForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        form_instance = form.save(commit=False)  # Save but don't write file to disk
-        csv_file = request.FILES['file']
+        form_instance = form.save(commit=False)  # Save but don't commit yet
+        csv_file = request.FILES['file_name']  # <- FIXED this line
 
         df = pd.read_csv(csv_file)
 
@@ -41,6 +41,6 @@ def upload_file_view(request):
         form_instance.activated = True
         form_instance.save()
 
-        return redirect('home')  # or wherever you want to redirect
+        return redirect('home')  # or redirect somewhere after upload
 
     return render(request, 'csvs/upload.html', {'form': form})
